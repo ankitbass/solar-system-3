@@ -7,6 +7,12 @@ on:
             - main
             - 'feature/*'
 
+
+env:    #adding workflow level environemnt variables - uri, username, pwd to access db in mongoose db function to connect to db
+    MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
+    MONGO_USERNAME: ${{vars.MONGO_USERNAME}}
+    MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
+
 jobs:
     unit-testing:              #name of the job
         name: Unit Testing

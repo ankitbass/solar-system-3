@@ -14,7 +14,7 @@ env:    #adding workflow level environemnt variables - uri, username, pwd to acc
 jobs:
     unit-testing:              #name of the job
         name: Unit Testing
-        strategy:
+        strategy:              #using matrix startegy
             matrix:
                 nodejs_version: [18,19,20]
                 operating_system: [ubuntu_latest, macos_latest]

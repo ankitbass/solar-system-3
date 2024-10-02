@@ -1,12 +1,10 @@
 name: Solar System Workflow
-
 on:
     workflow_dispatch:
     push:                        #will automatically trigger as it is push based
         branches:
             - main
             - 'feature/*'
-
 
 env:    #adding workflow level environemnt variables - uri, username, pwd to access db in mongoose db function to connect to db
     MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
@@ -16,15 +14,22 @@ env:    #adding workflow level environemnt variables - uri, username, pwd to acc
 jobs:
     unit-testing:              #name of the job
         name: Unit Testing
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                nodejs_version: [18,19,20]
+                operating_system: [ubuntu_latest, macos_latest]
+                exclude:
+                - nodejs_version: 18
+                  operating_system: macos_latest
+        runs-on: ${{matrix.operating_system}}
         steps:
         - name: Checkout Repository
           uses: actions/checkout@v4
 
-        - name: Setup NodeJS Version -18    #nodejs package is setup with ver 18
+        - name: Setup NodeJS Version -${{matrix.nodejs_version}}    #nodejs package is setup with ver 18
           uses: actions/setup-node@v3
           with:
-            node-version: 18
+            node-version: ${{matrix.nodejs_version}}
 
         - name: Install Dependencies   #installing nodejs dependencies using npm
           run: npm install

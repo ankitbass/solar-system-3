@@ -2,7 +2,7 @@ name: Solar System Workflow
 
 on:
     workflow_dispatch:
-    push:
+    push:                        #will automatically trigger as it is push based
         branches:
             - main
             - 'feature/*'
@@ -32,5 +32,10 @@ jobs:
         - name: Unit Testing      #running unit test using npm test
           run: npm test
 
+        - name: Archive Test Results   #used to store test results file otherwise it will be deleted post execution completion
+          uses: actions/upload-artifact@v3
+          with:
+            name: Mocha-Test-Result
+            path: test-results.xml
 
 

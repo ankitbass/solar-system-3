@@ -35,9 +35,13 @@ jobs:
           run: npm install
 
         - name: Unit Testing      #running unit test using npm test
+          id: nodejs-unit-testing-step1 #variable id will hold the output
           run: npm test
 
         - name: Archive Test Results   #used to store test results file otherwise it will be deleted post execution completion
+          #1.consider if above steps fails then also we want to archive/store test results. You can either use if condition or can use always()
+          #if: failure() && (steps.nodejs-unit-testing-step1.outcome == 'failure' || steps.nodejs-unit-testing-step1.outcome == 'success')
+          if: always() 
           uses: actions/upload-artifact@v3
           with:
             name: Mocha-Test-Result
@@ -59,7 +63,8 @@ jobs:
           run: npm install
 
         - name: Check the code coverage  
-          continue-on-error: true    
+          continue-on-error: true    #adding this as the java code contains 90% threshold limit. so what if my code coverage <90%.env:
+                                     #i do not want this job to fail and hence adding continue-on-error
           run: npm run coverage
 
         - name: Archive Test Results   #used to store test results file otherwise it will be deleted post execution completion

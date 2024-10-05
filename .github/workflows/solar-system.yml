@@ -112,7 +112,7 @@ jobs:
         - name: Docker Image Run & Test                 #docker is by default installed in ubuntu. you dont need to explicitly install docker
           run: |
             docker images                           
-            docker run --name solar-system-app -d \    #"solar-system-app" is the container name we gave running in detached mode (-d)
+            docker run --name solar-system-app -d \    #solar-system-app" is the container name we gave running in detached mode (-d)
               -p 3000\3000 \                           #exposing it on port 3000
               -e MONGO_URI = $MONGO_URI \              #here we are passing values from env var to container variables
               -e MONGO_USERNAME = $MONGO_USERNAME \
@@ -126,3 +126,9 @@ jobs:
             wget -q -o - 127.0.0.1:3000/live | grep live    #endpoint 'live' is used as teh same is in 'app.js' file
 
 
+        - name: Docker Push  #this will push docker image to docker hub
+          uses: docker/build-push-action@v4
+          with:
+            context: .       #path having docker file. dot means it will search for docker file in root directory
+            push: true
+            tags: ${{vars.DOCKERHUB_USERNAME}}/solar-system:${{github.sha}} #tagging the image. github.sha will include a version dynamically using the sha value of the commit id

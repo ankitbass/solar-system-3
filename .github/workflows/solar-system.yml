@@ -86,3 +86,43 @@ jobs:
             name: Code-Coverage-Result
             path: coverage
             retention-days: 5
+
+    docker: #adding docker login job
+      name: Containerization
+      needs: [unit-testing, code-coverage]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
+
+        - name: Docker Login
+          uses: docker/login-action@v2.2.0
+          with: 
+            username: ${{vars.DOCKERHUB_USERNAME}}
+            password: ${{secrets.DOCKERHUB_PASSWORD}}  
+
+        - name: Docker Build Image
+          uses: docker/build-push-action@v4
+          with:
+            context: .       #path having docker file. dot means it will search for docker file in root directory
+            push: false
+            tags: ${{vars.DOCKERHUB_USERNAME}}/solar-system:${{github.sha}} #tagging the image. github.sha will include a version dynamically using the sha value of the commit id
+
+        - name: Docker Image Run & Test                 #docker is by default installed in ubuntu. you dont need to explicitly install docker
+          run: |
+            docker images                           
+            docker run --name solar-system-app -d \    #"solar-system-app" is the container name we gave running in detached mode (-d)
+              -p 3000\3000 \                           #exposing it on port 3000
+              -e MONGO_URI = $MONGO_URI \              #here we are passing values from env var to container variables
+              -e MONGO_USERNAME = $MONGO_USERNAME \
+              -e MONGO_PASSWORD = $MONGO_PASSWORD \
+              ${{env.DOCKERHUB_USERNAME}}/solar-system:${{github.sha}}
+
+            export IP=$(docker inspect -f '{{range.NetworkSettings.Network}}{{.IPAddress}}{{end}}' solar-system-app)   #getting ip address of the container
+            echo $IP
+
+            echo Testing Image URL using wget             #test docker image
+            wget -q -o - 127.0.0.1:3000/live | grep live    #endpoint 'live' is used as teh same is in 'app.js' file
+
+

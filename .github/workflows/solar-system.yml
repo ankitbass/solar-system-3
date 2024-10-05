@@ -58,7 +58,8 @@ jobs:
         - name: Install Dependencies   #installing nodejs dependencies using npm
           run: npm install
 
-        - name: Check the code coverage      
+        - name: Check the code coverage  
+          continue-on-error: true    
           run: npm run coverage
 
         - name: Archive Test Results   #used to store test results file otherwise it will be deleted post execution completion

@@ -132,3 +132,26 @@ jobs:
             context: .       #path having docker file. dot means it will search for docker file in root directory
             push: true
             tags: ${{vars.DOCKERHUB_USERNAME}}/solar-system:${{github.sha}} #tagging the image. github.sha will include a version dynamically using the sha value of the commit id
+
+    dev-deploy:
+      needs: docker
+      runs-on: ubuntu-latest
+      steps:
+       - name: Checkoput Repo
+         uses: actions/checkout@v4
+
+       - name: Install kubectl CLI
+         uses: azure/setup-kubectl@v3
+         with: 
+          version: 'v1.26.0'
+       - name: set kubeconfig
+         uses: azure/k8s-set-context@v3
+         with:
+          method: kubeconfig
+          kubeconfig: ${{secrets.KUBECONFIG}}  
+            
+       - name: Fetch kubernetes cluster details
+         run: 
+          kubectl version --short
+          echo ------------------------------------------
+          kubectl get nodes     
